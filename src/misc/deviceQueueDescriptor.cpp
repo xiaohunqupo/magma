@@ -24,14 +24,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 namespace magma
 {
 DeviceQueueDescriptor::DeviceQueueDescriptor(const PhysicalDevice *physicalDevice,
-    VkQueueFlagBits capabilities, float queuePriority,
+    VkQueueFlagBits capability, float queuePriority,
     VkDeviceQueueCreateFlags flags /* 0 */,
     const StructureChain& extendedInfo /* default */):
-    DeviceQueueDescriptor(physicalDevice, capabilities, {queuePriority}, flags, extendedInfo)
+    DeviceQueueDescriptor(physicalDevice, capability, {queuePriority}, flags, extendedInfo)
 {}
 
 DeviceQueueDescriptor::DeviceQueueDescriptor(const PhysicalDevice *physicalDevice,
-    VkQueueFlagBits capabilities,
+    VkQueueFlagBits capability,
     const std::initializer_list<float>& queuePriorities /* {QueuePriorityDefault} */,
     VkDeviceQueueCreateFlags flags /* 0 */,
     const StructureChain& extendedInfo /* default */):
@@ -46,17 +46,38 @@ DeviceQueueDescriptor::DeviceQueueDescriptor(const PhysicalDevice *physicalDevic
 {
     const std::vector<VkQueueFamilyProperties> properties = physicalDevice->getQueueFamilyProperties();
     std::optional<uint32_t> familyIndex;
-    if (VK_QUEUE_GRAPHICS_BIT == capabilities)
+    switch (capability)
+    {
+    case VK_QUEUE_GRAPHICS_BIT:
         familyIndex = findDedicatedQueueFamily(properties, VK_QUEUE_GRAPHICS_BIT);
-    else if (VK_QUEUE_COMPUTE_BIT == capabilities)
-        familyIndex = findDedicatedQueueFamily(properties, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_GRAPHICS_BIT);
-    else if (capabilities & (VK_QUEUE_TRANSFER_BIT | VK_QUEUE_SPARSE_BINDING_BIT))
-        familyIndex = findDedicatedQueueFamily(properties, capabilities, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
+        break;
+    case VK_QUEUE_COMPUTE_BIT:
+        familyIndex = findDedicatedQueueFamily(properties, VK_QUEUE_COMPUTE_BIT,
+            VK_QUEUE_GRAPHICS_BIT);
+        break;
+    case VK_QUEUE_TRANSFER_BIT:
+    case VK_QUEUE_SPARSE_BINDING_BIT:
+        familyIndex = findDedicatedQueueFamily(properties, capability,
+            VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
+        break;
+#ifdef VK_KHR_video_decode_queue
+    case VK_QUEUE_VIDEO_DECODE_BIT_KHR:
+        familyIndex = findDedicatedQueueFamily(properties, VK_QUEUE_VIDEO_DECODE_BIT_KHR,
+            VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
+        break;
+#endif // VK_KHR_video_decode_queue
+#ifdef VK_KHR_video_encode_queue
+    case VK_QUEUE_VIDEO_ENCODE_BIT_KHR:
+        familyIndex = findDedicatedQueueFamily(properties, VK_QUEUE_VIDEO_ENCODE_BIT_KHR,
+            VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
+        break;
+#endif // VK_KHR_video_encode_queue
+    }
     if (familyIndex)
         queueFamilyIndex = familyIndex.value();
     else
     {
-        familyIndex = findAnySuitableQueueFamily(properties, capabilities);
+        familyIndex = findAnySuitableQueueFamily(properties, capability);
         if (familyIndex)
             queueFamilyIndex = familyIndex.value();
         else
@@ -95,12 +116,12 @@ DeviceQueueDescriptor::~DeviceQueueDescriptor()
 }
 
 std::optional<uint32_t> DeviceQueueDescriptor::findDedicatedQueueFamily(const std::vector<VkQueueFamilyProperties>& properties,
-    VkQueueFlags capability, VkQueueFlags excludeCapabilities /* 0 */) const noexcept
+    VkQueueFlagBits capability, VkQueueFlags excludeCapabilities /* 0 */) const noexcept
 {
     uint32_t queueFamilyIndex = 0;
     for (auto const& property: properties)
     {   // Best if queue has only dedicated capability
-        if (property.queueFlags == capability)
+        if (property.queueFlags == (VkQueueFlags)capability)
             return queueFamilyIndex;
         ++queueFamilyIndex;
     }
@@ -118,12 +139,12 @@ std::optional<uint32_t> DeviceQueueDescriptor::findDedicatedQueueFamily(const st
 }
 
 std::optional<uint32_t> DeviceQueueDescriptor::findAnySuitableQueueFamily(const std::vector<VkQueueFamilyProperties>& properties,
-    VkQueueFlags capabilities) const noexcept
+   VkQueueFlagBits capability) const noexcept
 {
     uint32_t queueFamilyIndex = 0;
     for (auto const& property: properties)
     {   // Check if queue supports requested capabilities
-        if (property.queueFlags & capabilities)
+        if (property.queueFlags & capability)
             return queueFamilyIndex;
         ++queueFamilyIndex;
     }

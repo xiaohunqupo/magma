@@ -41,12 +41,12 @@ namespace magma
     {
     public:
         explicit DeviceQueueDescriptor(const PhysicalDevice *physicalDevice,
-            VkQueueFlagBits capabilities,
+            VkQueueFlagBits capability,
             float queuePriority,
             VkDeviceQueueCreateFlags flags = 0,
             const StructureChain& extendedInfo = StructureChain());
         explicit DeviceQueueDescriptor(const PhysicalDevice *physicalDevice,
-            VkQueueFlagBits capabilities,
+            VkQueueFlagBits capability,
             const std::initializer_list<float>& queuePriorities = {QueuePriorityDefault},
             VkDeviceQueueCreateFlags flags = 0,
             const StructureChain& extendedInfo = StructureChain());
@@ -59,10 +59,10 @@ namespace magma
     private:
         std::optional<uint32_t> findDedicatedQueueFamily(
             const std::vector<VkQueueFamilyProperties>& properties,
-            VkQueueFlags capability,
+            VkQueueFlagBits capability,
             VkQueueFlags excludeCapabilities = 0) const noexcept;
         std::optional<uint32_t> findAnySuitableQueueFamily(
             const std::vector<VkQueueFamilyProperties>& properties,
-            VkQueueFlags capabilities) const noexcept;
+            VkQueueFlagBits capability) const noexcept;
     };
 } // namespace magma
