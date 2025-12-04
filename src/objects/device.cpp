@@ -126,9 +126,9 @@ const std::unique_ptr<FeatureQuery>& Device::checkFeatures() const
     return featureQuery;
 }
 
-std::shared_ptr<Queue> Device::getQueue(VkQueueFlagBits flags, uint32_t queueIndex /* 0 */) const
+std::shared_ptr<Queue> Device::getQueue(VkQueueFlagBits capability, uint32_t queueIndex /* 0 */) const
 {
-    const DeviceQueueDescriptor queueDescriptor(physicalDevice.get(), flags, QueuePriorityDefault);
+    const DeviceQueueDescriptor queueDescriptor(physicalDevice.get(), capability, QueuePriorityDefault);
     return getQueueByFamily(queueDescriptor.queueFamilyIndex, queueIndex);
 }
 
@@ -141,19 +141,19 @@ std::shared_ptr<Queue> Device::getQueueByFamily(uint32_t queueFamilyIndex, uint3
         auto it = queues.find(key);
         if (it != queues.end())
             return it->second;
-        for (const VkQueueFlagBits flag: {
+        for (const VkQueueFlagBits capability: {
             VK_QUEUE_GRAPHICS_BIT,
             VK_QUEUE_COMPUTE_BIT,
             VK_QUEUE_TRANSFER_BIT})
         {   // Try to get new instance
-            const DeviceQueueDescriptor queueDescriptor(physicalDevice.get(), flag);
+            const DeviceQueueDescriptor queueDescriptor(physicalDevice.get(), capability);
             if (queueDescriptor.queueFamilyIndex == queueFamilyIndex)
             {
                 VkQueue queue = VK_NULL_HANDLE;
                 vkGetDeviceQueue(handle, queueFamilyIndex, queueIndex, &queue);
                 if (VK_NULL_HANDLE == queue)
                     MAGMA_ERROR("failed to get device queue");
-                return queues[key] = Queue::makeShared(queue, flag, queueFamilyIndex, queueIndex);
+                return queues[key] = Queue::makeShared(queue, capability, queueFamilyIndex, queueIndex);
             }
         }
     }
