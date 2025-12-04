@@ -57,21 +57,15 @@ DeviceQueueDescriptor::DeviceQueueDescriptor(const PhysicalDevice *physicalDevic
         break;
     case VK_QUEUE_TRANSFER_BIT:
     case VK_QUEUE_SPARSE_BINDING_BIT:
+#ifdef VK_KHR_video_decode_queue
+    case VK_QUEUE_VIDEO_DECODE_BIT_KHR:
+#endif
+#ifdef VK_KHR_video_encode_queue
+    case VK_QUEUE_VIDEO_ENCODE_BIT_KHR:
+#endif
         familyIndex = findDedicatedQueueFamily(properties, capability,
             VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
         break;
-#ifdef VK_KHR_video_decode_queue
-    case VK_QUEUE_VIDEO_DECODE_BIT_KHR:
-        familyIndex = findDedicatedQueueFamily(properties, VK_QUEUE_VIDEO_DECODE_BIT_KHR,
-            VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
-        break;
-#endif // VK_KHR_video_decode_queue
-#ifdef VK_KHR_video_encode_queue
-    case VK_QUEUE_VIDEO_ENCODE_BIT_KHR:
-        familyIndex = findDedicatedQueueFamily(properties, VK_QUEUE_VIDEO_ENCODE_BIT_KHR,
-            VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
-        break;
-#endif // VK_KHR_video_encode_queue
     }
     if (familyIndex)
         queueFamilyIndex = familyIndex.value();
