@@ -115,9 +115,6 @@
     <Filter Include="Source Files\objects\model">
       <UniqueIdentifier>{c815a3f0-8bcf-465b-802b-0439b54a0abf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\core\hashing">
-      <UniqueIdentifier>{9f739dc1-07f6-470e-ba56-79f2fa41b932}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\magma.h">
@@ -834,15 +831,6 @@
     <ClInclude Include="..\..\src\objects\multiviewRenderPass.h">
       <Filter>Header Files\objects</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\core\hashing\constexpr.h">
-      <Filter>Header Files\core\hashing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\core\hashing\fnv1.h">
-      <Filter>Header Files\core\hashing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\core\hashing\fnv1string.h">
-      <Filter>Header Files\core\hashing</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\exceptions\errorHandler.h">
       <Filter>Header Files\exceptions</Filter>
     </ClInclude>
@@ -878,6 +866,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\objects\clusterAccelerationStructure.h">
       <Filter>Header Files\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\hash.h">
+      <Filter>Header Files\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

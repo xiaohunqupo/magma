@@ -21,9 +21,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include "variantPtr.h"
 #include "lentPtr.h"
 #include "spinlock.h"
-#include "hashing/constexpr.h"
-#include "hashing/fnv1.h"
-#include "hashing/fnv1string.h"
+#include "hash.h"
 
 namespace magma
 {
@@ -74,14 +72,6 @@ namespace magma
         template<class VkObject> VkObject reinterpret(NonDispatchableHandle handle) noexcept;
 
         template<class T1, class T2, class L> void foreach(T1& container1, T2& container2, L&& fn);
-
-        template<class T> constexpr hash_t hash(T x) noexcept;
-        template<class T> constexpr hash_t hash(T *p) noexcept;
-        template<class T> constexpr hash_t hashArg(hash_t seed, const T& arg) noexcept;
-        template<class T, typename... Args> constexpr hash_t hashArgs(const T& arg, Args... args) noexcept;
-        template<class T, std::size_t N> constexpr hash_t hashArray(const T (&arr)[N]) noexcept;
-        template<class T> hash_t hashArray(const T arr[], std::size_t count) noexcept;
-        inline hash_t hashString(const char *str) noexcept;
 
         template<class T> T *copy(const T *src) noexcept;
         template<class T> T *copy(T *dst, const T *src) noexcept;

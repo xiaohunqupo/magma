@@ -467,7 +467,7 @@ INCLUDEPATH += $(VULKAN_SDK)/include
 INCLUDEPATH += ../../src/third-party/pfr/include
 INCLUDEPATH += ../../src/core/
 
-QMAKE_CXXFLAGS += -std=c++17 -msse4 -ftemplate-depth=2048 -fconstexpr-depth=2048
+QMAKE_CXXFLAGS += -std=c++17 -msse4
 QMAKE_CXXFLAGS += -Wno-unused-function -Wno-unknown-pragmas -Wno-deprecated-copy -Wno-missing-field-initializers
 
 win32 {
