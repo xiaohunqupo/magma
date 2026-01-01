@@ -144,7 +144,16 @@ std::shared_ptr<Queue> Device::getQueueByFamily(uint32_t queueFamilyIndex, uint3
         for (const VkQueueFlagBits capability: {
             VK_QUEUE_GRAPHICS_BIT,
             VK_QUEUE_COMPUTE_BIT,
-            VK_QUEUE_TRANSFER_BIT})
+            VK_QUEUE_TRANSFER_BIT,
+            VK_QUEUE_SPARSE_BINDING_BIT,
+            VK_QUEUE_PROTECTED_BIT,
+        #ifdef VK_KHR_video_decode_queue
+            VK_QUEUE_VIDEO_DECODE_BIT_KHR,
+        #endif
+        #ifdef VK_KHR_video_encode_queue
+            VK_QUEUE_VIDEO_ENCODE_BIT_KHR
+        #endif
+            })
         {   // Try to get new instance
             const DeviceQueueDescriptor queueDescriptor(physicalDevice.get(), capability);
             if (queueDescriptor.queueFamilyIndex == queueFamilyIndex)
