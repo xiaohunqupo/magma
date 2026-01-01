@@ -49,16 +49,14 @@ inline hash_t hashArray(const T arr[], std::size_t count) noexcept
     return hash;
 }
 
-template<class T>
-constexpr hash_t hashString(const T *str) noexcept
+inline hash_t hashString(const char *str) noexcept
 {
-    return hashing::string::Fnv1a<T, 0ull>().hash(str);
-}
-
-template<class T>
-inline hash_t hashString(const std::basic_string<T>& str) noexcept
-{
-    std::hash<std::basic_string<T>> hasher;
-    return hasher(str);
+    assert(str);
+    constexpr uint64_t Prime = 1099511628211ull;
+    constexpr uint64_t Basis = 14695981039346656037ull;
+    hash_t hash = Basis;
+    for (size_t i = 0, n = strlen(str); i < n; ++i)
+        hash = (hash ^ str[i]) * Prime;
+    return hash;
 }
 } // namespace magma::core
