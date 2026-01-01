@@ -39,7 +39,7 @@ set PDB_FILE=%BUILD_DIR%\%LIBRARY%.pdb
 set TARGET=%LIBRARY%.lib
 
 set BASE_CFLAGS=/c /std:c++17 /EHsc /GS /Gd /permissive- /MP /nologo ^
-  /W4 /WX /wd"4065" /wd"4348" /wd"4458" ^
+  /W4 /WX /wd"4065" /wd"4307" /wd"4348" /wd"4458" ^
   /constexpr:depth2048 /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /errorReport:prompt ^
   /I%VULKAN_SDK%\Include /Icore /Isrc\third-party\pfr\include ^
   /D %PLATFORM% /D "_UNICODE" /D "UNICODE" ^
