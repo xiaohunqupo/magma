@@ -100,7 +100,12 @@ namespace magma
 
             const uint32_t maxVertexCount;
             const bool wideLinesEnabled;
+            const bool largePointsEnabled;
             const bool stippledLinesEnabled;
+            float pointSizeRange[2] = {1.f, 1.f};
+            float lineWidthRange[2] = {1.f, 1.f};
+            float pointSizeGranularity = 1.f;
+            float lineWidthGranularity = 1.f;
             std::shared_ptr<PipelineLayout> sharedLayout;
             std::unique_ptr<GraphicsPipelineCache> pipelineCache;
             std::unique_ptr<RenderPass> renderPass;

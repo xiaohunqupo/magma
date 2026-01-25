@@ -43,6 +43,7 @@ ImmediateRender::ImmediateRender(const uint32_t maxVertexCount, std::unique_ptr<
     std::shared_ptr<Allocator> allocator /* nullptr */):
     maxVertexCount(maxVertexCount),
     wideLinesEnabled(renderPass->getDevice()->getEnabledFeatures().wideLines),
+    largePointsEnabled(renderPass->getDevice()->getEnabledFeatures().largePoints),
     stippledLinesEnabled(renderPass->getDevice()->checkFeatures()->stippledLinesEnabled()),
     sharedLayout(std::move(layout)),
     pipelineCache(std::make_unique<GraphicsPipelineCache>(renderPass->getDevice(), true, false,
@@ -56,13 +57,19 @@ ImmediateRender::ImmediateRender(const uint32_t maxVertexCount, std::unique_ptr<
     depthStencilState(renderstate::depthAlwaysDontWrite),
     colorBlendState(renderstate::dontBlendRgba)
 {
-    setIdentity();
-    memcpy(viewProj, world, sizeof(world));
     const std::shared_ptr<Device>& device = pipelineCache->getDevice();
-    const VkDeviceSize vertexBufferSize = sizeof(Vertex) * maxVertexCount;
+    const std::shared_ptr<PhysicalDevice>& physicalDevice = device->getPhysicalDevice();
+    const VkPhysicalDeviceProperties properties = physicalDevice->getProperties();
+    const VkPhysicalDeviceLimits& limits = properties.limits;
+    pointSizeRange[0] = limits.pointSizeRange[0];
+    pointSizeRange[1] = limits.pointSizeRange[1];
+    lineWidthRange[0] = limits.lineWidthRange[0];
+    lineWidthRange[1] = limits.lineWidthRange[1];
+    pointSizeGranularity = limits.pointSizeGranularity;
+    lineWidthGranularity = limits.lineWidthGranularity;
     const std::unique_ptr<DeviceFeatures>& features = device->getPhysicalDevice()->features();
     const bool stagedPool = features->supportsDeviceLocalHostVisibleMemory();
-    vertexBuffer = std::make_unique<DynamicVertexBuffer>(device, vertexBufferSize, stagedPool, allocator);
+    vertexBuffer = std::make_unique<DynamicVertexBuffer>(device, maxVertexCount * sizeof(Vertex), stagedPool, allocator);
     if (!sharedLayout)
     {   // If layout hasn't been specified, create a default one
         constexpr push::VertexConstantRange<PushConstants> pushConstantRange;
@@ -78,6 +85,8 @@ ImmediateRender::ImmediateRender(const uint32_t maxVertexCount, std::unique_ptr<
     std::shared_ptr<ShaderModule> fragmentShader = std::make_shared<ShaderModule>(device, fsImm, fsImmHash, MAGMA_HOST_ALLOCATOR(allocator), false);
     shaderStages.emplace_back(VK_SHADER_STAGE_VERTEX_BIT, std::move(vertexShader), "main");
     shaderStages.emplace_back(VK_SHADER_STAGE_FRAGMENT_BIT, std::move(fragmentShader), "main");
+    setIdentity();
+    memcpy(viewProj, world, sizeof(world));
 }
 
 const std::unique_ptr<PipelineCache>& ImmediateRender::getPipelineCache() const noexcept
