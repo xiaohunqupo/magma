@@ -42,10 +42,17 @@ inline void ImmediateRender::setColorBlendState(const ColorBlendState& state) no
     colorBlendState = MultiColorBlendState(state); // Make copyable
 }
 
-inline void ImmediateRender::setLineWidth(float width) noexcept
+inline bool ImmediateRender::setLineWidth(float width) noexcept
 {
+    MAGMA_ASSERT(wideLinesEnabled);
+    if (!wideLinesEnabled)
+        return false;
     MAGMA_ASSERT(!insidePrimitive);
-    lineWidth = width;
+    MAGMA_ASSERT(width >= lineWidthRange[0]);
+    MAGMA_ASSERT(width <= lineWidthRange[1]);
+    width = alignByGranularity(width, lineWidthRange[0], lineWidthGranularity);
+    lineWidth = std::clamp(width, lineWidthRange[0], lineWidthRange[1]);
+    return true;
 }
 
 inline void ImmediateRender::setLineStippleFactor(uint32_t stippleFactor) noexcept
@@ -129,10 +136,16 @@ inline void ImmediateRender::texCoord(const float uv[2]) noexcept
     texCoord(uv[0], uv[1]);
 }
 
-inline void ImmediateRender::pointSize(float size) noexcept
+inline bool ImmediateRender::pointSize(float size) noexcept
 {
-    MAGMA_ASSERT(size >= 1.f);
-    v->normalPSize.v[3] = size;
+    MAGMA_ASSERT(largePointsEnabled);
+    if (!largePointsEnabled)
+        return false;
+    MAGMA_ASSERT(size >= pointSizeRange[0]);
+    MAGMA_ASSERT(size <= pointSizeRange[1]);
+    size = alignByGranularity(size, pointSizeRange[0], pointSizeGranularity);
+    v->normalPSize.v[3] = std::clamp(size, pointSizeRange[0], pointSizeRange[1]);
+    return true;
 }
 
 inline void ImmediateRender::vertex(float x, float y, float z /* 0 */, float w /* 1 */) noexcept
@@ -156,5 +169,17 @@ inline void ImmediateRender::vertex(float x, float y, float z /* 0 */, float w /
 inline void ImmediateRender::vertex(const float v[4]) noexcept
 {
     vertex(v[0], v[1], v[2], v[3]);
+}
+
+inline float ImmediateRender::alignByGranularity(float value, float minRange, float granularity) const noexcept
+{
+    MAGMA_ASSERT(granularity > 0.f);
+    const float steps = (value - minRange) / granularity;
+    const float roundedSteps = roundf(steps);
+    const bool aligned = fabsf(steps - roundedSteps) < 1e-6f;
+    MAGMA_ASSERT(aligned);
+    if (!aligned)
+        value = minRange + roundedSteps * granularity;
+    return value;
 }
 } // namespace magma::aux

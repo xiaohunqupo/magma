@@ -64,7 +64,7 @@ namespace magma
             void setMultisampleState(const MultisampleState& state) noexcept;
             void setDepthStencilState(const DepthStencilState& state) noexcept;
             void setColorBlendState(const ColorBlendState& state) noexcept;
-            void setLineWidth(float width) noexcept;
+            bool setLineWidth(float width) noexcept;
             void setLineStippleFactor(uint32_t stippleFactor) noexcept;
             void setLineStipplePattern(uint16_t stipplePattern) noexcept;
             void setIdentity() noexcept;
@@ -87,7 +87,7 @@ namespace magma
             void color(const uint8_t c[4]) noexcept;
             void texCoord(float s, float t) noexcept;
             void texCoord(const float uv[2]) noexcept;
-            void pointSize(float size) noexcept;
+            bool pointSize(float size) noexcept;
             void vertex(float x, float y, float z = 0.f, float w = 1.f) noexcept;
             void vertex(const float v[4]) noexcept;
 
@@ -95,6 +95,8 @@ namespace magma
             struct Vertex;
             struct Primitive;
             struct PushConstants;
+
+            float alignByGranularity(float value, float minRange, float granularity) const noexcept;
             std::shared_ptr<GraphicsPipeline> lookupPipeline(VkPrimitiveTopology,
                 bool wideLineState, bool stippledLineState);
 
