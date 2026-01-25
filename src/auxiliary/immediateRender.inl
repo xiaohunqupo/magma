@@ -1,6 +1,4 @@
-namespace magma
-{
-namespace aux
+namespace magma::aux
 {
 inline void ImmediateRender::setVertexShader(const VertexShaderStage& shader) noexcept
 {
@@ -159,5 +157,4 @@ inline void ImmediateRender::vertex(const float v[4]) noexcept
 {
     vertex(v[0], v[1], v[2], v[3]);
 }
-} // namespace aux
-} // namespace magma
+} // namespace magma::aux
